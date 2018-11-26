@@ -45,5 +45,8 @@ class LocalConfig(object):
     BLOGS_PER_PAGE = 10
     BLOG_DETAIL_URL = "http://blog.renren.com/blog/{uid}/{blog_id}"
 
+    FRIENDS_URL = "http://friend.renren.com/groupsdata"
+    FRIENDS_OTHER_URL = "http://friend.renren.com/friendfriendSelector?p={%22init%22:true,%22uid%22:true,%22uhead%22:true,%22uname%22:true,%22group%22:true,%22net%22:true,%22param%22:{%22guest%22: {ownerid}}}"
+    FRIENDS_SHARE_URL = "http://friend.renren.com/shareFriends?&p={%22init%22:true,%22uid%22:true,%22uhead%22:true,%22uname%22:true,%22group%22:true,%22net%22:true,%22param%22:{%22guest%22: {ownerid}}}"
 
 config = LocalConfig

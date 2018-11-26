@@ -1,10 +1,9 @@
 # coding: utf8
 
-from peewee import SqliteDatabase, Model, BooleanField, IntegerField, DateTimeField, CharField
+from peewee import SqliteDatabase, Model, BooleanField, IntegerField, DateTimeField, CharField, CompositeKey
 from playhouse.shortcuts import model_to_dict
 
 from config import config
-
 
 database = SqliteDatabase(config.DATABASE)
 
@@ -42,6 +41,24 @@ class User(BaseModel):
     uid = IntegerField(unique=True, primary_key=True)
     name = CharField()
     headPic = CharField()
+
+
+class Friend(BaseModel):
+    uid = IntegerField()
+    fid = IntegerField()
+    fgroups = CharField()
+    fname = CharField()
+    info = CharField()
+    headPicLargeUrl = CharField()
+    headPicTinyUrl = CharField()
+    albumStatus = IntegerField() # 0 not crawl, 1 crawel succeed, 2 crawel failed
+    blogStatus = IntegerField()
+    friendsStatus = IntegerField()
+    gossipStatus = IntegerField()
+    statusStatus = IntegerField()
+
+    class Meta:
+        primary_key = CompositeKey('uid', 'fid')
 
 
 class Comment(BaseModel):

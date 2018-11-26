@@ -8,7 +8,6 @@ from playhouse.shortcuts import model_to_dict
 
 from config import config
 
-
 logging.config.fileConfig(config.LOGGING_INI)
 logger = logging.getLogger(__name__)
 
@@ -16,10 +15,12 @@ logger = logging.getLogger(__name__)
 def prepare_db():
     from models import database, FetchedUser, User, Comment, Like
     from models import Status, Gossip, Album, Photo, Blog
+    from models import Friend
 
     with database:
         database.create_tables([FetchedUser, User, Comment, Like])
         database.create_tables([Status, Gossip, Album, Photo, Blog])
+        database.create_tables([Friend])
 
 
 def prepare_crawler(args):
@@ -86,6 +87,28 @@ def fetch_blog(uid):
     logger.info('fetched {blog_count} blogs'.format(blog_count=blog_count))
 
 
+def fetch_friend(uid):
+    from crawl import friends as crawl_friend
+
+    friend_count = crawl_friend.load_friend_list(uid)
+    logger.info('fetched {friend_count} friends'.format(friend_count=friend_count))
+
+    friend_list = crawl_friend.crawal_all_friend(uid)
+    for f in friend_list:
+        if f.gossipStatus == 0:
+            try:
+                fetch_gossip(f.fid)
+                crawl_friend.update_friend_gossip_state(uid, f.fid, 1)
+                logger.info('fetched album succeed on user {fid}'.format(fid=f.fid))
+            except Exception:
+                crawl_friend.update_friend_gossip_state(uid, f.fid, 2)
+                logger.info('fetched album error on user {fid}'.format(fid=f.fid))
+        elif f.gossipStatus == 1:
+            logger.info('fetched album skip for succeed on user {fid}'.format(fid=f.fid))
+        else:
+            logger.info('fetched album skip for error on user {fid}'.format(fid=f.fid))
+
+
 def fetch_user(uid, args):
     fetched_flag = False
 
@@ -108,6 +131,10 @@ def fetch_user(uid, args):
         fetch_blog(uid)
         fetched_flag = True
 
+    if args.fetch_friend:
+        fetch_friend(uid)
+        fetched_flag = True
+
     return fetched_flag
 
 
@@ -119,6 +146,7 @@ if __name__ == "__main__":
     parser.add_argument('-g', '--fetch-gossip', help="fetch gossip or not", action="store_true")
     parser.add_argument('-a', '--fetch-album', help="fetch album or not", action="store_true")
     parser.add_argument('-b', '--fetch-blog', help="fetch blog or not", action="store_true")
+    parser.add_argument('-f', '--fetch-friend', help="fetch friend or not", action="store_true")
     parser.add_argument('-u', '--fetch-uid',
                         help="user to fetch, or the login user by default", type=int)
     parser.add_argument('-r', '--refresh-count',

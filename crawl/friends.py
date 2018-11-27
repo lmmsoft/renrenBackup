@@ -33,7 +33,7 @@ def load_friend_list(uid):
     return len(json_mfriends)
 
 
-def crawal_all_friend(uid):
+def fetch_all_friend(uid):
     return Friend.select().where(Friend.uid == uid)
 
 

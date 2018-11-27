@@ -9,7 +9,6 @@ from models import Gossip
 
 from .utils import get_image
 
-
 logger = logging.getLogger(__name__)
 crawler = config.crawler
 
@@ -34,7 +33,7 @@ def load_gossip_page(page, uid=crawler.uid):
             't': datetime.strptime(c['time'], "%Y-%m-%d %H:%M"),
             'guestId': c['guestId'],
             'guestName': c['guestName'],
-            'headPic': local_pic,    # 居然保存的是当时的头像，这里不能往 User 表里塞了
+            'headPic': local_pic,  # 居然保存的是当时的头像，这里不能往 User 表里塞了
             'attachSnap': get_image(c.get('headUrl', '')),
             'attachPic': get_image(c.get('largeUrl', '')),
             'whisper': c['whisper'] == 'true',
@@ -81,8 +80,9 @@ def get_gossip(uid=crawler.uid):
 
     cur_page = 0
     crawled_total = 0
-    while cur_page*config.ITEMS_PER_PAGE < total:
-        logger.info('start crawl gossip page {cur_page}'.format(cur_page=cur_page))
+    total_page = int(total / config.ITEMS_PER_PAGE) + 1 if (total % config.ITEMS_PER_PAGE != 0) else 0
+    while cur_page * config.ITEMS_PER_PAGE < total:
+        logger.info('start crawl gossip page {cur_page} / {total_page}'.format(cur_page=cur_page + 1, total_page=total_page)) # 显示的页面序号从第一页开始
         crawled_total += load_gossip_page(cur_page, uid)
         cur_page += 1
 

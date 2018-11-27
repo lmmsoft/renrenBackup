@@ -93,7 +93,7 @@ def fetch_friend(uid):
     friend_count = crawl_friend.load_friend_list(uid)
     logger.info('fetched {friend_count} friends'.format(friend_count=friend_count))
 
-    friend_list = crawl_friend.crawal_all_friend(uid)
+    friend_list = crawl_friend.fetch_all_friend(uid)
     for f in friend_list:
         if f.gossipStatus == 0:
             try:
